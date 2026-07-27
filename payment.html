@@ -503,6 +503,8 @@
         let razorpayInstance = null;
         let isCheckoutOpen = false;
         let isProcessing = false;
+        let hasOpenedOnce = false;
+        let autoOpenTimer = null;
 
         // ========================
         // Utility: Switch visible state
@@ -564,7 +566,11 @@
             const url = `${API_BASE}/payment-details?ref=${encodeURIComponent(reference)}`;
             console.log('[API Request] GET', url);
 
-            const response = await fetch(url);
+            const response = await fetch(url, {
+                headers: {
+                    'ngrok-skip-browser-warning': 'true'
+                }
+            });
 
             if (!response.ok) {
                 throw new Error(`Server responded with status ${response.status}`);
@@ -592,7 +598,8 @@
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'ngrok-skip-browser-warning': 'true'
                 },
                 body: JSON.stringify(body)
             });
@@ -621,8 +628,11 @@
             }
 
             isCheckoutOpen = true;
+            hasOpenedOnce = true;
             const payBtn = document.getElementById('payBtn');
             if (payBtn) payBtn.disabled = true;
+
+            console.log('[Checkout] Payment data received:', JSON.stringify(paymentData, null, 2));
 
             const options = {
                 key: paymentData.key,
@@ -640,6 +650,7 @@
                 theme: {
                     color: '#0A67B7'
                 },
+                remember_customer: false,
                 handler: async function (response) {
                     isCheckoutOpen = false;
                     isProcessing = true;
@@ -678,6 +689,10 @@
                     ondismiss: function () {
                         console.log('[Payment] Checkout dismissed by user');
                         isCheckoutOpen = false;
+                        if (autoOpenTimer) {
+                            clearTimeout(autoOpenTimer);
+                            autoOpenTimer = null;
+                        }
                         if (payBtn) payBtn.disabled = false;
                         if (!isProcessing) {
                             showState('stateCancelled');
@@ -816,8 +831,10 @@
                 showState('stateDetails');
 
                 // Step 4: Auto-open checkout after a short delay
-                setTimeout(() => {
-                    openCheckout();
+                autoOpenTimer = setTimeout(() => {
+                    if (!hasOpenedOnce) {
+                        openCheckout();
+                    }
                 }, 600);
 
             } catch (err) {
