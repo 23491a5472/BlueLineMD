@@ -590,7 +590,8 @@
                 referenceId: ref,
                 paymentId: paymentResponse.razorpay_payment_id,
                 orderId: paymentResponse.razorpay_order_id,
-                signature: paymentResponse.razorpay_signature
+                signature: paymentResponse.razorpay_signature,
+                phone: paymentData.phone
             };
 
             console.log('[API Request] POST', url, body);
