@@ -1,0 +1,258 @@
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 16px;
+}
+
+.container {
+  background: var(--card-bg);
+  width: 100%;
+  max-width: 440px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  background-color: #FFFFFF;
+  padding: 24px 20px;
+  text-align: center;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.brand-logo {
+  width: 56px;
+  height: 56px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+}
+
+.header h1 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.header p {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.content {
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 220px;
+  justify-content: center;
+  text-align: center;
+}
+
+/* State Views */
+.view-state {
+  display: none;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+}
+
+.view-state.active {
+  display: flex;
+}
+
+/* Spinner */
+.spinner {
+  width: 44px;
+  height: 44px;
+  border: 4px solid var(--border-color);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Icons */
+.icon-container {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.icon-success {
+  background-color: #D1FAE5;
+  color: var(--success-color);
+}
+
+.icon-error {
+  background-color: #FEE2E2;
+  color: var(--error-color);
+}
+
+.icon-warning {
+  background-color: #FEF3C7;
+  color: var(--warning-color);
+}
+
+.icon-container svg {
+  width: 36px;
+  height: 36px;
+}
+
+/* Details Card */
+.details-card {
+  background: #F8FAFC;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  width: 100%;
+  padding: 16px;
+  margin: 16px 0;
+  text-align: left;
+}
+
+.details-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 0.875rem;
+}
+
+.details-row:last-child {
+  margin-bottom: 0;
+}
+
+.details-label {
+  color: var(--text-muted);
+}
+
+.details-value {
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+/* Typography & Buttons */
+.state-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.state-desc {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.btn {
+  background-color: var(--primary);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 24px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 16px;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.btn:hover {
+  background-color: var(--primary-hover);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.footer {
+  border-top: 1px solid var(--border-color);
+  padding: 16px 20px;
+  text-align: center;
+  background-color: #FFFFFF;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+```
+
+```
+<div class="content">
+  <!-- Loading State -->
+  <div id="view-loading" class="view-state active">
+    <div class="spinner"></div>
+    <p class="state-title" id="loading-text">Loading payment details...</p>
+  </div>
+
+  <!-- Ready to Pay State -->
+  <div id="view-ready" class="view-state">
+    <p class="state-title">Appointment Summary</p>
+    <div class="details-card">
+      <div class="details-row">
+        <span class="details-label">Patient:</span>
+        <span class="details-value" id="summary-patient">-</span>
+      </div>
+      <div class="details-row">
+        <span class="details-label">Description:</span>
+        <span class="details-value" id="summary-desc">-</span>
+      </div>
+      <div class="details-row">
+        <span class="details-label">Amount:</span>
+        <span class="details-value" id="summary-amount">-</span>
+      </div>
+    </div>
+    <button id="btn-pay-now" class="btn" onclick="triggerCheckout()">Proceed to Pay</button>
+  </div>
+
+  <!-- Success State -->
+  <div id="view-success" class="view-state">
+    <div class="icon-container icon-success">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+      </svg>
+    </div>
+    <p class="state-title">✅ Payment Successful</p>
+    <p class="state-desc">Appointment booked successfully.<br>Please check your WhatsApp for confirmation.</p>
+    <p class="state-desc" style="margin-top: 12px; font-size: 0.75rem;">Redirecting shortly...</p>
+  </div>
+
+  <!-- Failure / Error State -->
+  <div id="view-error" class="view-state">
+    <div id="error-icon" class="icon-container icon-error">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </div>
+    <p class="state-title" id="error-title">Payment Failed</p>
+    <p class="state-desc" id="error-message">An unexpected error occurred.</p>
+    <button id="btn-retry" class="btn" onclick="retryPayment()" style="display: none;">Retry Payment</button>
+  </div>
+</div>
+
+<div class="footer">
+  Secured by Razorpay • BluelineMD Healthcare Services
+</div>
