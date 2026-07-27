@@ -497,7 +497,7 @@
         // ========================
         // Global State
         // ========================
-        const API_BASE = 'https://blank-envy-uplifted.ngrok-free.dev/webhook-test';
+        const API_BASE = 'https://blank-envy-uplifted.ngrok-free.dev/webhook';
         let ref = null;
         let paymentData = null;
         let razorpayInstance = null;
@@ -564,12 +564,7 @@
             const url = `${API_BASE}/payment-details?ref=${encodeURIComponent(reference)}`;
             console.log('[API Request] GET', url);
 
-            const response = await fetch(url, {
-                method: 'GET',
-                headers: {
-                    'ngrok-skip-browser-warning': 'true'
-                }
-            });
+            const response = await fetch(url);
 
             if (!response.ok) {
                 throw new Error(`Server responded with status ${response.status}`);
@@ -597,8 +592,7 @@
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'ngrok-skip-browser-warning': 'true'
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(body)
             });
