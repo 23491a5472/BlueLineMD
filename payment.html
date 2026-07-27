@@ -1,259 +1,849 @@
-<style>
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BluelineMD – Appointment Payment</title>
+    <meta name="description" content="Securely pay for your BluelineMD Hospital appointment booking.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-body {
-  background-color: var(--bg-color);
-  color: var(--text-main);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  padding: 16px;
-}
+        :root {
+            --primary: #0A67B7;
+            --primary-light: #E8F2FC;
+            --primary-dark: #064A85;
+            --success: #16A34A;
+            --success-light: #DCFCE7;
+            --danger: #DC2626;
+            --danger-light: #FEE2E2;
+            --warning: #F59E0B;
+            --warning-light: #FEF3C7;
+            --text: #1E293B;
+            --text-secondary: #64748B;
+            --bg: #FFFFFF;
+            --bg-subtle: #F8FAFC;
+            --border: #E2E8F0;
+            --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-lg: 0 10px 25px rgba(10,103,183,0.12), 0 4px 10px rgba(0,0,0,0.06);
+            --radius: 16px;
+        }
 
-.container {
-  background: var(--card-bg);
-  width: 100%;
-  max-width: 440px;
-  border-radius: 16px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
-  border: 1px solid var(--border-color);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-subtle);
+            color: var(--text);
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            -webkit-font-smoothing: antialiased;
+        }
 
-.header {
-  background-color: #FFFFFF;
-  padding: 24px 20px;
-  text-align: center;
-  border-bottom: 1px solid var(--border-color);
-}
+        .container {
+            width: 100%;
+            max-width: 440px;
+            animation: fadeInUp 0.5s ease-out;
+        }
 
-.brand-logo {
-  width: 56px;
-  height: 56px;
-  margin-bottom: 12px;
-  border-radius: 12px;
-}
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-.header h1 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--text-main);
-}
+        /* Header / Logo Bar */
+        .header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
 
-.header p {
-  font-size: 0.875rem;
-  color: var(--text-muted);
-  margin-top: 4px;
-}
+        .header-logo {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            object-fit: cover;
+            box-shadow: var(--shadow);
+            margin-bottom: 12px;
+        }
 
-.content {
-  padding: 24px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 220px;
-  justify-content: center;
-  text-align: center;
-}
+        .header-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: -0.3px;
+        }
 
-/* State Views */
-.view-state {
-  display: none;
-  width: 100%;
-  flex-direction: column;
-  align-items: center;
-}
+        .header-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
 
-.view-state.active {
-  display: flex;
-}
+        /* Card */
+        .card {
+            background: var(--bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            padding: 32px 28px;
+            border: 1px solid var(--border);
+        }
 
-/* Spinner */
-.spinner {
-  width: 44px;
-  height: 44px;
-  border: 4px solid var(--border-color);
-  border-top-color: var(--primary);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin-bottom: 16px;
-}
+        /* State Sections */
+        .state {
+            display: none;
+            text-align: center;
+        }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+        .state.active {
+            display: block;
+            animation: fadeIn 0.35s ease-out;
+        }
 
-/* Icons */
-.icon-container {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 16px;
-}
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
 
-.icon-success {
-  background-color: #D1FAE5;
-  color: var(--success-color);
-}
+        /* Loading State */
+        .spinner-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 20px 0;
+        }
 
-.icon-error {
-  background-color: #FEE2E2;
-  color: var(--error-color);
-}
+        .spinner {
+            width: 44px;
+            height: 44px;
+            border: 3.5px solid var(--primary-light);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
 
-.icon-warning {
-  background-color: #FEF3C7;
-  color: var(--warning-color);
-}
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
 
-.icon-container svg {
-  width: 36px;
-  height: 36px;
-}
+        .spinner-text {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
 
-/* Details Card */
-.details-card {
-  background: #F8FAFC;
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  width: 100%;
-  padding: 16px;
-  margin: 16px 0;
-  text-align: left;
-}
+        /* Payment Details State */
+        .detail-rows {
+            margin: 20px 0 24px;
+            text-align: left;
+        }
 
-.details-row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 8px;
-  font-size: 0.875rem;
-}
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
 
-.details-row:last-child {
-  margin-bottom: 0;
-}
+        .detail-row:last-child {
+            border-bottom: none;
+        }
 
-.details-label {
-  color: var(--text-muted);
-}
+        .detail-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
 
-.details-value {
-  font-weight: 600;
-  color: var(--text-main);
-}
+        .detail-value {
+            font-size: 14px;
+            color: var(--text);
+            font-weight: 600;
+            text-align: right;
+            max-width: 60%;
+            word-break: break-word;
+        }
 
-/* Typography & Buttons */
-.state-title {
-  font-size: 1.125rem;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
+        .amount-highlight {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            text-align: center;
+            margin: 8px 0 4px;
+            letter-spacing: -0.5px;
+        }
 
-.state-desc {
-  font-size: 0.875rem;
-  color: var(--text-muted);
-  line-height: 1.5;
-}
+        .amount-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 4px;
+        }
 
-.btn {
-  background-color: var(--primary);
-  color: #FFFFFF;
-  border: none;
-  border-radius: 10px;
-  padding: 12px 24px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  width: 100%;
-  margin-top: 16px;
-  transition: background-color 0.2s ease, opacity 0.2s ease;
-}
+        /* Status Icon Circles */
+        .status-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 36px;
+        }
 
-.btn:hover {
-  background-color: var(--primary-hover);
-}
+        .status-icon.success {
+            background: var(--success-light);
+            color: var(--success);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
 
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
+        .status-icon.error {
+            background: var(--danger-light);
+            color: var(--danger);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
 
-.footer {
-  border-top: 1px solid var(--border-color);
-  padding: 16px 20px;
-  text-align: center;
-  background-color: #FFFFFF;
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
-</style>
+        .status-icon.warning {
+            background: var(--warning-light);
+            color: var(--warning);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
 
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            60% { transform: scale(1.15); }
+            100% { transform: scale(1); opacity: 1; }
+        }
 
-<html>
-<div class="content">
-  <!-- Loading State -->
-  <div id="view-loading" class="view-state active">
-    <div class="spinner"></div>
-    <p class="state-title" id="loading-text">Loading payment details...</p>
-  </div>
+        .status-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.3px;
+        }
 
-  <!-- Ready to Pay State -->
-  <div id="view-ready" class="view-state">
-    <p class="state-title">Appointment Summary</p>
-    <div class="details-card">
-      <div class="details-row">
-        <span class="details-label">Patient:</span>
-        <span class="details-value" id="summary-patient">-</span>
-      </div>
-      <div class="details-row">
-        <span class="details-label">Description:</span>
-        <span class="details-value" id="summary-desc">-</span>
-      </div>
-      <div class="details-row">
-        <span class="details-label">Amount:</span>
-        <span class="details-value" id="summary-amount">-</span>
-      </div>
+        .status-title.success { color: var(--success); }
+        .status-title.error { color: var(--danger); }
+        .status-title.warning { color: var(--warning); }
+
+        .status-message {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 6px;
+        }
+
+        .status-reason {
+            font-size: 13px;
+            color: var(--danger);
+            background: var(--danger-light);
+            padding: 10px 14px;
+            border-radius: 10px;
+            margin: 12px 0 0;
+            text-align: left;
+            word-break: break-word;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 14px 24px;
+            font-size: 15px;
+            font-weight: 600;
+            font-family: inherit;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(10,103,183,0.3);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            box-shadow: 0 4px 14px rgba(10,103,183,0.35);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-light);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: #fff;
+        }
+
+        /* Redirect countdown */
+        .redirect-note {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 16px;
+        }
+
+        /* Secured badge */
+        .secured-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 24px;
+        }
+
+        .secured-badge svg {
+            width: 14px;
+            height: 14px;
+            fill: var(--text-secondary);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Pulse animation for pay button */
+        @keyframes gentlePulse {
+            0%, 100% { box-shadow: 0 2px 8px rgba(10,103,183,0.3); }
+            50% { box-shadow: 0 4px 20px rgba(10,103,183,0.45); }
+        }
+
+        .btn-pay-pulse {
+            animation: gentlePulse 2s ease-in-out infinite;
+        }
+
+        /* Verifying overlay inside card */
+        .verifying-overlay {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            padding: 20px 0;
+        }
+
+        .verifying-overlay.active {
+            display: flex;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            body {
+                padding: 16px;
+                justify-content: flex-start;
+                padding-top: 40px;
+            }
+
+            .card {
+                padding: 24px 20px;
+            }
+
+            .amount-highlight {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <img src="https://i.imgur.com/3g7nmJC.png" alt="BluelineMD" class="header-logo" id="headerLogo">
+            <div class="header-title">BluelineMD Hospital</div>
+            <div class="header-subtitle">Appointment Payment</div>
+        </div>
+
+        <!-- Card -->
+        <div class="card">
+            <!-- State: Loading -->
+            <div class="state active" id="stateLoading">
+                <div class="spinner-wrapper">
+                    <div class="spinner"></div>
+                    <div class="spinner-text">Loading payment details...</div>
+                </div>
+            </div>
+
+            <!-- State: Error (generic) -->
+            <div class="state" id="stateError">
+                <div class="status-icon error">✕</div>
+                <div class="status-title error" id="errorTitle">Error</div>
+                <div class="status-message" id="errorMessage">Something went wrong.</div>
+                <div class="status-reason" id="errorReason" style="display:none;"></div>
+                <button class="btn btn-outline" id="errorRetryBtn" style="margin-top:20px; display:none;" onclick="retryPayment()">
+                    ↻ Retry Payment
+                </button>
+            </div>
+
+            <!-- State: Payment Details -->
+            <div class="state" id="stateDetails">
+                <div class="amount-subtitle">Amount to Pay</div>
+                <div class="amount-highlight" id="displayAmount">₹0.00</div>
+                <div class="detail-rows">
+                    <div class="detail-row">
+                        <span class="detail-label">Patient</span>
+                        <span class="detail-value" id="displayName">—</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Description</span>
+                        <span class="detail-value" id="displayDesc">—</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Reference</span>
+                        <span class="detail-value" id="displayRef">—</span>
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-pay-pulse" id="payBtn" onclick="handlePayClick()">
+                    🔒 Pay Now
+                </button>
+                <div class="secured-badge">
+                    <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+                    Secured by Razorpay
+                </div>
+            </div>
+
+            <!-- State: Verifying -->
+            <div class="state" id="stateVerifying">
+                <div class="spinner-wrapper">
+                    <div class="spinner"></div>
+                    <div class="spinner-text">Verifying payment...</div>
+                </div>
+            </div>
+
+            <!-- State: Success -->
+            <div class="state" id="stateSuccess">
+                <div class="status-icon success">✓</div>
+                <div class="status-title success">Payment Successful</div>
+                <div class="status-message">
+                    Appointment booked successfully.<br>
+                    Please check your WhatsApp for confirmation.
+                </div>
+                <div class="redirect-note" id="redirectNote">Redirecting in <span id="countdown">5</span> seconds...</div>
+            </div>
+
+            <!-- State: Failed -->
+            <div class="state" id="stateFailed">
+                <div class="status-icon error">✕</div>
+                <div class="status-title error">Payment Failed</div>
+                <div class="status-message" id="failedMessage">Your payment could not be processed.</div>
+                <div class="status-reason" id="failedReason" style="display:none;"></div>
+                <button class="btn btn-primary" style="margin-top:20px;" onclick="retryPayment()">
+                    ↻ Retry Payment
+                </button>
+            </div>
+
+            <!-- State: Cancelled -->
+            <div class="state" id="stateCancelled">
+                <div class="status-icon warning">⚠</div>
+                <div class="status-title warning">Payment Cancelled</div>
+                <div class="status-message">You closed the payment window.<br>No amount has been charged.</div>
+                <button class="btn btn-primary" style="margin-top:20px;" onclick="retryPayment()">
+                    ↻ Retry Payment
+                </button>
+            </div>
+
+            <!-- State: Invalid Link -->
+            <div class="state" id="stateInvalid">
+                <div class="status-icon error">✕</div>
+                <div class="status-title error">Invalid Payment Link</div>
+                <div class="status-message">This payment link is not valid. Please check your WhatsApp for the correct link.</div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            © 2026 BluelineMD Hospital. All rights reserved.
+        </div>
     </div>
-    <button id="btn-pay-now" class="btn" onclick="triggerCheckout()">Proceed to Pay</button>
-  </div>
 
-  <!-- Success State -->
-  <div id="view-success" class="view-state">
-    <div class="icon-container icon-success">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
-      </svg>
-    </div>
-    <p class="state-title">✅ Payment Successful</p>
-    <p class="state-desc">Appointment booked successfully.<br>Please check your WhatsApp for confirmation.</p>
-    <p class="state-desc" style="margin-top: 12px; font-size: 0.75rem;">Redirecting shortly...</p>
-  </div>
+    <script>
+        // ========================
+        // Global State
+        // ========================
+        const API_BASE = 'https://blank-envy-uplifted.ngrok-free.dev/webhook-test';
+        let ref = null;
+        let paymentData = null;
+        let razorpayInstance = null;
+        let isCheckoutOpen = false;
+        let isProcessing = false;
 
-  <!-- Failure / Error State -->
-  <div id="view-error" class="view-state">
-    <div id="error-icon" class="icon-container icon-error">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
-      </svg>
-    </div>
-    <p class="state-title" id="error-title">Payment Failed</p>
-    <p class="state-desc" id="error-message">An unexpected error occurred.</p>
-    <button id="btn-retry" class="btn" onclick="retryPayment()" style="display: none;">Retry Payment</button>
-  </div>
-</div>
+        // ========================
+        // Utility: Switch visible state
+        // ========================
+        function showState(stateId) {
+            document.querySelectorAll('.state').forEach(el => el.classList.remove('active'));
+            const target = document.getElementById(stateId);
+            if (target) target.classList.add('active');
+        }
 
-<div class="footer">
-  Secured by Razorpay • BluelineMD Healthcare Services
-</div>
-  </html>
+        // ========================
+        // Show Loading
+        // ========================
+        function showLoading(message = 'Loading payment details...') {
+            const spinnerText = document.querySelector('#stateLoading .spinner-text');
+            if (spinnerText) spinnerText.textContent = message;
+            showState('stateLoading');
+        }
+
+        // ========================
+        // Show Error (generic)
+        // ========================
+        function showError(title, message, reason = null, showRetry = false) {
+            document.getElementById('errorTitle').textContent = title;
+            document.getElementById('errorMessage').textContent = message;
+            const reasonEl = document.getElementById('errorReason');
+            const retryBtn = document.getElementById('errorRetryBtn');
+            if (reason) {
+                reasonEl.textContent = reason;
+                reasonEl.style.display = 'block';
+            } else {
+                reasonEl.style.display = 'none';
+            }
+            retryBtn.style.display = showRetry ? 'inline-flex' : 'none';
+            showState('stateError');
+        }
+
+        // ========================
+        // Show Success
+        // ========================
+        function showSuccess(message) {
+            showState('stateSuccess');
+            let seconds = 5;
+            const countdownEl = document.getElementById('countdown');
+            const timer = setInterval(() => {
+                seconds--;
+                countdownEl.textContent = seconds;
+                if (seconds <= 0) {
+                    clearInterval(timer);
+                    window.location.href = 'about:blank';
+                }
+            }, 1000);
+        }
+
+        // ========================
+        // Fetch Payment Details
+        // ========================
+        async function fetchPaymentDetails(reference) {
+            const url = `${API_BASE}/payment-details?ref=${encodeURIComponent(reference)}`;
+            console.log('[API Request] GET', url);
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'ngrok-skip-browser-warning': 'true'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server responded with status ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log('[API Response] payment-details:', data);
+            return data;
+        }
+
+        // ========================
+        // Verify Payment
+        // ========================
+        async function verifyPayment(paymentResponse) {
+            const url = `${API_BASE}/payment_success`;
+            const body = {
+                referenceId: ref,
+                paymentId: paymentResponse.razorpay_payment_id,
+                orderId: paymentResponse.razorpay_order_id,
+                signature: paymentResponse.razorpay_signature
+            };
+
+            console.log('[API Request] POST', url, body);
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'ngrok-skip-browser-warning': 'true'
+                },
+                body: JSON.stringify(body)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Verification server responded with status ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log('[API Response] payment_success:', data);
+            return data;
+        }
+
+        // ========================
+        // Open Razorpay Checkout
+        // ========================
+        function openCheckout() {
+            if (isCheckoutOpen || isProcessing) {
+                console.log('[Checkout] Blocked – already open or processing');
+                return;
+            }
+
+            if (!paymentData) {
+                console.log('[Checkout] No payment data available');
+                return;
+            }
+
+            isCheckoutOpen = true;
+            const payBtn = document.getElementById('payBtn');
+            if (payBtn) payBtn.disabled = true;
+
+            const options = {
+                key: paymentData.key,
+                amount: paymentData.amount,
+                currency: paymentData.currency,
+                order_id: paymentData.orderId,
+                name: 'BluelineMD Hospital',
+                description: paymentData.description,
+                image: 'https://i.imgur.com/3g7nmJC.png',
+                prefill: {
+                    name: paymentData.patientName,
+                    contact: paymentData.phone,
+                    email: paymentData.email
+                },
+                theme: {
+                    color: '#0A67B7'
+                },
+                handler: async function (response) {
+                    isCheckoutOpen = false;
+                    isProcessing = true;
+                    console.log('[Payment] Success callback:', response);
+
+                    showState('stateVerifying');
+
+                    try {
+                        const result = await verifyPayment(response);
+                        if (result.status === true) {
+                            console.log('[Webhook] Verification success:', result.message);
+                            showSuccess(result.message);
+                        } else {
+                            console.log('[Webhook] Verification failed:', result);
+                            showError(
+                                'Verification Failed',
+                                'Payment was received but verification failed. Please contact support.',
+                                result.message || null,
+                                true
+                            );
+                        }
+                    } catch (err) {
+                        console.error('[Webhook] Verification error:', err);
+                        showError(
+                            'Verification Error',
+                            'Unable to verify your payment. Please contact support if the amount was deducted.',
+                            err.message,
+                            true
+                        );
+                    } finally {
+                        isProcessing = false;
+                        if (payBtn) payBtn.disabled = false;
+                    }
+                },
+                modal: {
+                    ondismiss: function () {
+                        console.log('[Payment] Checkout dismissed by user');
+                        isCheckoutOpen = false;
+                        if (payBtn) payBtn.disabled = false;
+                        if (!isProcessing) {
+                            showState('stateCancelled');
+                        }
+                    },
+                    escape: true,
+                    backdropclose: false
+                }
+            };
+
+            try {
+                razorpayInstance = new Razorpay(options);
+
+                razorpayInstance.on('payment.failed', function (response) {
+                    console.error('[Payment] Failed:', response.error);
+                    isCheckoutOpen = false;
+                    if (payBtn) payBtn.disabled = false;
+
+                    const reason = response.error.description || response.error.reason || 'Unknown error';
+                    document.getElementById('failedMessage').textContent = 'Your payment could not be processed.';
+                    const reasonEl = document.getElementById('failedReason');
+                    reasonEl.textContent = reason;
+                    reasonEl.style.display = 'block';
+                    showState('stateFailed');
+                });
+
+                razorpayInstance.open();
+                console.log('[Checkout] Razorpay opened');
+            } catch (err) {
+                console.error('[Checkout] Error opening Razorpay:', err);
+                isCheckoutOpen = false;
+                if (payBtn) payBtn.disabled = false;
+                showError('Checkout Error', 'Unable to open payment window.', err.message, true);
+            }
+        }
+
+        // ========================
+        // Retry Payment
+        // ========================
+        function retryPayment() {
+            if (isCheckoutOpen || isProcessing) return;
+            showState('stateDetails');
+            setTimeout(() => openCheckout(), 300);
+        }
+
+        // ========================
+        // Pay Button Click Handler
+        // ========================
+        function handlePayClick() {
+            openCheckout();
+        }
+
+        // ========================
+        // Load Razorpay SDK dynamically
+        // ========================
+        function loadRazorpaySDK() {
+            return new Promise((resolve, reject) => {
+                if (typeof Razorpay !== 'undefined') {
+                    resolve();
+                    return;
+                }
+                const script = document.createElement('script');
+                script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+                script.onload = () => {
+                    console.log('[SDK] Razorpay SDK loaded');
+                    resolve();
+                };
+                script.onerror = () => {
+                    console.error('[SDK] Failed to load Razorpay SDK');
+                    reject(new Error('Failed to load payment SDK. Please check your internet connection.'));
+                };
+                document.head.appendChild(script);
+            });
+        }
+
+        // ========================
+        // Format currency
+        // ========================
+        function formatAmount(paise, currency = 'INR') {
+            const amount = (paise / 100).toFixed(2);
+            if (currency === 'INR') {
+                return '₹' + parseFloat(amount).toLocaleString('en-IN', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+            }
+            return currency + ' ' + amount;
+        }
+
+        // ========================
+        // Initialize
+        // ========================
+        async function init() {
+            console.log('[Init] Starting payment page');
+
+            // Step 1: Read ref
+            ref = new URLSearchParams(window.location.search).get('ref');
+            console.log('[Init] Reference:', ref);
+
+            if (!ref || ref.trim() === '') {
+                console.log('[Init] No ref parameter found');
+                showState('stateInvalid');
+                return;
+            }
+
+            showLoading('Loading payment details...');
+
+            try {
+                // Step 2: Fetch payment details
+                const data = await fetchPaymentDetails(ref);
+
+                if (!data || data.status === false) {
+                    console.log('[Init] Payment details unavailable:', data);
+                    showError(
+                        'Unable to Load',
+                        'Unable to load payment details. The link may have expired or already been used.',
+                        null,
+                        false
+                    );
+                    return;
+                }
+
+                paymentData = data;
+
+                // Populate UI
+                document.getElementById('displayAmount').textContent = formatAmount(data.amount, data.currency);
+                document.getElementById('displayName').textContent = data.patientName || '—';
+                document.getElementById('displayDesc').textContent = data.description || '—';
+                document.getElementById('displayRef').textContent = ref;
+
+                // Step 3: Load Razorpay SDK
+                showLoading('Preparing payment gateway...');
+                await loadRazorpaySDK();
+
+                // Show details briefly, then auto-open checkout
+                showState('stateDetails');
+
+                // Step 4: Auto-open checkout after a short delay
+                setTimeout(() => {
+                    openCheckout();
+                }, 600);
+
+            } catch (err) {
+                console.error('[Init] Error:', err);
+
+                let message = 'Something went wrong while loading payment details.';
+                if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+                    message = 'Network error. Please check your internet connection and try again.';
+                } else if (err.message.includes('JSON')) {
+                    message = 'Received an invalid response from the server.';
+                }
+
+                showError('Error', message, err.message, false);
+            }
+        }
+
+        // ========================
+        // Start
+        // ========================
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
